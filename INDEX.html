@@ -1,0 +1,1726 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEELURO — Boutique & Diario de Joyería</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Playfair Display (Serif Elegante) & Montserrat (Minimalista Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Montserrat', 'sans-serif'],
+            serif: ['Playfair Display', 'serif'],
+          },
+          colors: {
+            brand: {
+              dark: '#1C1917',     // Café oscuro ultra premium (de la imagen de referencia)
+              mid: '#2E2A27',      // Tono tierra complementario
+              light: '#F5F2EB',    // Marfil de fondo editorial
+              accent: '#C5A880',   // Oro champagne
+              gold: '#D4AF37',     // Oro brillante
+              sand: '#DFD9CE'
+            }
+          },
+          letterSpacing: {
+            ultra: '0.25em',
+            extreme: '0.4em'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Estilos personalizados para emular estética de revista editorial */
+    body {
+      background-color: #FDFDFB;
+      color: #1C1917;
+      overflow-x: hidden;
+    }
+    
+    /* Scrollbar minimalista */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F5F2EB;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #C5A880;
+    }
+
+    /* Animación de destello dorado para cargas */
+    @keyframes goldShimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .shimmer-bg {
+      background: linear-gradient(90deg, #1c1917 25%, #c5a880 50%, #1c1917 75%);
+      background-size: 200% 100%;
+      animation: goldShimmer 2.5s infinite linear;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+
+  <!-- NOTIFICACIÓN FLOTANTE PERSONALIZADA -->
+  <div id="toast-notification" class="fixed top-24 right-6 z-50 transform translate-x-full transition-transform duration-300 ease-out">
+    <div class="bg-brand-dark text-white border-l-4 border-brand-accent px-6 py-4 shadow-2xl flex items-center gap-3">
+      <i data-lucide="info" class="w-5 h-5 text-brand-accent"></i>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-brand-accent font-semibold" id="toast-title">Notificación</p>
+        <p class="text-sm font-light text-gray-300" id="toast-message">Mensaje guardado con éxito.</p>
+      </div>
+      <button onclick="hideToast()" class="ml-4 text-gray-400 hover:text-white">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- BARRA DE ANUNCIOS SUPERIOR (Idéntica a la referencia de HÓMINI) -->
+  <div class="bg-brand-dark text-brand-light py-2.5 px-4 text-center border-b border-brand-mid relative z-40">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-[10px] tracking-widest uppercase font-light">
+      <span class="mb-1 sm:mb-0">ENVÍOS EXPRESS | Recibí tu pedido en el día</span>
+      <span class="font-normal text-brand-accent">FREE SHIPPING | en compras mayores a $U 6.000</span>
+    </div>
+  </div>
+
+  <!-- HEADER PRINCIPAL -->
+  <header class="sticky top-0 bg-white/95 backdrop-blur-md z-30 border-b border-gray-100 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 sm:h-24">
+        
+        <!-- Menú Móvil Hamburguesa -->
+        <div class="flex lg:hidden">
+          <button id="btn-mobile-menu" class="text-brand-dark p-2 focus:outline-none" onclick="toggleMobileMenu()">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+
+        <!-- LOGOTIPO COMPACTO & MINIMALISTA (Sin el subtítulo 'Haute Bijouterie') -->
+        <div class="flex-1 lg:flex-none text-center lg:text-left">
+          <a href="#" onclick="switchTab('shop')" class="inline-block">
+            <h1 class="text-2xl sm:text-3xl font-light tracking-extreme text-brand-dark select-none cursor-pointer py-2">
+              B E E L U R O
+            </h1>
+          </a>
+        </div>
+
+        <!-- NAVEGACIÓN DESKTOP -->
+        <nav class="hidden lg:flex space-x-8 xl:space-x-12 text-[11px] font-light tracking-widest uppercase">
+          <a href="#" onclick="filterCategory('aros')" class="nav-link text-brand-dark hover:text-brand-accent transition-colors py-2">Aros</a>
+          <a href="#" onclick="filterCategory('brazaletes')" class="nav-link text-brand-dark hover:text-brand-accent transition-colors py-2">Brazaletes</a>
+          <a href="#" onclick="filterCategory('gargantillas')" class="nav-link text-brand-dark hover:text-brand-accent transition-colors py-2">Gargantillas</a>
+          <a href="#" onclick="filterCategory('anillos')" class="nav-link text-brand-dark hover:text-brand-accent transition-colors py-2">Anillos</a>
+          <a href="#" onclick="switchTab('diario')" class="nav-link text-brand-accent hover:text-brand-dark transition-colors py-2 font-medium flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-accent animate-ping"></span>
+            DIARIO BEELURO
+          </a>
+          <a href="#" onclick="filterCategory('lentes')" class="nav-link text-brand-dark hover:text-brand-accent transition-colors py-2">Lentes</a>
+          <a href="#" onclick="filterCategory('sale')" class="nav-link text-red-700 hover:text-red-900 transition-colors py-2 font-normal">Sale</a>
+        </nav>
+
+        <!-- ACCIONES DE USUARIO & CARRITO -->
+        <div class="flex items-center space-x-4 sm:space-x-6">
+          <button onclick="toggleSearchModal()" class="text-brand-dark hover:text-brand-accent p-1 transition-colors">
+            <i data-lucide="search" class="w-5 h-5 font-light"></i>
+          </button>
+          <button onclick="switchTab('diario')" class="text-brand-dark hover:text-brand-accent p-1 transition-colors relative" title="Diario de Joyas">
+            <i data-lucide="book-open" class="w-5 h-5"></i>
+          </button>
+          <button onclick="toggleCart(true)" class="text-brand-dark hover:text-brand-accent p-1 transition-colors relative">
+            <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+            <span id="cart-count" class="absolute -top-1.5 -right-1.5 bg-brand-dark text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold transition-all duration-300 transform scale-100">0</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Menú Desplegable Móvil -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-6 space-y-3 transition-all">
+      <a href="#" onclick="filterCategory('aros'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-dark hover:text-brand-accent">Aros</a>
+      <a href="#" onclick="filterCategory('brazaletes'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-dark hover:text-brand-accent">Brazaletes</a>
+      <a href="#" onclick="filterCategory('gargantillas'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-dark hover:text-brand-accent">Gargantillas</a>
+      <a href="#" onclick="filterCategory('anillos'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-dark hover:text-brand-accent">Anillos</a>
+      <a href="#" onclick="switchTab('diario'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-accent font-semibold">★ Diario de Creación</a>
+      <a href="#" onclick="filterCategory('lentes'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-brand-dark hover:text-brand-accent">Lentes</a>
+      <a href="#" onclick="filterCategory('sale'); toggleMobileMenu()" class="block py-2 text-xs uppercase tracking-widest text-red-700 font-semibold">Sale</a>
+    </div>
+  </header>
+
+  <!-- PESTAÑA 1: BOUTIQUE / TIENDA (VISTA PRINCIPAL) -->
+  <main id="tab-shop" class="tab-content block">
+
+    <!-- HERO SECTION (ESTILO EDITORIAL MINIMALISTA CON DETALLE DE PUEBLO DE PIEDRA/SOL) -->
+    <section class="relative w-full h-[65vh] sm:h-[80vh] md:h-[85vh] bg-brand-dark overflow-hidden flex items-center justify-center">
+      <div class="absolute inset-0 z-0">
+        <!-- Imagen de pueblo rústico cálido (Estilo callejón mediterráneo/sudamericano empedrado a la hora de oro) -->
+        <img 
+          src="https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?auto=format&fit=crop&w=1920&q=80" 
+          alt="Beeluro Pueblo Editorial" 
+          class="w-full h-full object-cover object-center opacity-85 scale-105 transition-transform duration-[10000ms] hover:scale-100"
+          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1920&q=80'"
+        >
+        <!-- Filtros de color tierra cálido para igualar el ambiente del catálogo y de hoy.jpg -->
+        <div class="absolute inset-0 bg-gradient-to-t from-brand-dark/95 via-transparent to-brand-dark/35 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-brand-dark/15 mix-blend-color"></div>
+      </div>
+
+      <!-- Contenido Hero (NEW COLLECTION a la izquierda, SHOP NOW a la derecha) -->
+      <div class="absolute inset-0 z-10 flex flex-col justify-between p-6 sm:p-12 lg:p-20 max-w-7xl mx-auto w-full">
+        <div></div>
+
+        <div class="flex flex-col sm:flex-row justify-between items-end gap-6 sm:gap-0 pb-4">
+          <div class="text-left">
+            <p class="text-xs tracking-[0.3em] text-brand-accent uppercase mb-2 font-light">Origen e Inspiración Local</p>
+            <h2 class="text-3xl sm:text-4xl md:text-5xl font-light tracking-widest text-white uppercase font-sans">
+              NEW COLLECTION
+            </h2>
+          </div>
+
+          <div class="text-right w-full sm:w-auto">
+            <button onclick="scrollToCatalog()" class="w-full sm:w-auto border border-white hover:border-brand-accent hover:bg-white hover:text-brand-dark text-white text-xs sm:text-sm tracking-[0.3em] uppercase py-3 sm:py-4 px-8 sm:px-12 transition-all duration-300 font-light backdrop-blur-sm">
+              SHOP NOW
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BARRA DE CATEGORÍAS RÁPIDAS -->
+    <section class="bg-brand-light py-6 border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-center flex-wrap gap-4 text-[10px] sm:text-xs font-light tracking-widest uppercase">
+          <button onclick="filterCategory('all')" class="cat-pill bg-brand-dark text-white px-5 py-2 rounded-none transition-all">Todos los Diseños</button>
+          <button onclick="filterCategory('aros')" class="cat-pill border border-gray-300 hover:border-brand-dark text-brand-mid px-5 py-2 rounded-none transition-all">Aros</button>
+          <button onclick="filterCategory('brazaletes')" class="cat-pill border border-gray-300 hover:border-brand-dark text-brand-mid px-5 py-2 rounded-none transition-all">Brazaletes</button>
+          <button onclick="filterCategory('gargantillas')" class="cat-pill border border-gray-300 hover:border-brand-dark text-brand-mid px-5 py-2 rounded-none transition-all">Gargantillas</button>
+          <button onclick="filterCategory('anillos')" class="cat-pill border border-gray-300 hover:border-brand-dark text-brand-mid px-5 py-2 rounded-none transition-all">Anillos</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- NUEVA SECCIÓN: ATELIER FILMS (VIDEO DE BIJOUTERIE Y ARTESANÍA) -->
+    <section class="bg-brand-light/40 py-16 sm:py-24 border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+          
+          <!-- Lado Izquierdo: Texto Editorial poético -->
+          <div class="lg:col-span-5 space-y-6">
+            <span class="text-[10px] uppercase tracking-widest text-brand-accent font-semibold block">Atelier Films — Cap. I</span>
+            <h2 class="text-3xl sm:text-4xl font-light tracking-widest text-brand-dark uppercase font-serif">
+              El Alma de la Materia
+            </h2>
+            <div class="w-12 h-[1px] bg-brand-accent"></div>
+            <p class="text-xs text-gray-600 leading-relaxed font-light">
+              Mirá de cerca el delicado latido de nuestra mesa de trabajo. Cada pieza de **BEELURO** nace del fuego controlado, el pulido manual a espejo y la paciencia del artesano. Diseños que capturan la quietud rústica de un pueblo bajo la hora de oro.
+            </p>
+            <div class="pt-2">
+              <span class="text-[10px] uppercase tracking-widest text-brand-dark font-medium border-b border-brand-accent pb-1 select-none">
+                Estudio de Técnicas Tradicionales
+              </span>
+            </div>
+          </div>
+
+          <!-- Lado Derecho: Reproductor de Video Estilo Galería de Arte -->
+          <div class="lg:col-span-7 relative group">
+            <div class="bg-brand-dark aspect-video overflow-hidden shadow-2xl relative border border-brand-sand">
+              
+              <!-- Video HTML5 -->
+              <video 
+                id="atelier-video" 
+                class="w-full h-full object-cover opacity-90 transition-opacity duration-500" 
+                loop 
+                muted 
+                playsinline
+                poster="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80"
+              >
+                <!-- Video de alta costura de joyería/orfebrería puliendo metal -->
+                <source src="https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-goldsmith-working-on-a-ring-43022-large.mp4" type="video/mp4">
+                Tu navegador no soporta reproducción de video.
+              </video>
+
+              <!-- Capa overlay oscura elegante para cuando está pausado -->
+              <div id="video-overlay" class="absolute inset-0 bg-black/35 flex items-center justify-center transition-all duration-300">
+                <!-- Botón de Play Gigante de Diseño Minimalista -->
+                <button onclick="toggleVideoPlay()" class="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md w-16 h-16 rounded-full flex items-center justify-center transition-transform duration-300 transform hover:scale-105 border border-white/40 shadow-xl" id="video-btn-main">
+                  <i data-lucide="play" class="w-6 h-6 fill-white ml-1" id="video-btn-icon"></i>
+                </button>
+              </div>
+
+              <!-- Pequeña Barra de Estado de Video flotante abajo -->
+              <div class="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between text-white text-[9px] tracking-widest uppercase font-light bg-brand-dark/60 backdrop-blur-xs px-4 py-2">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-red-600 animate-ping"></span>
+                  En Vivo desde el Atelier
+                </span>
+                <button onclick="toggleVideoMute()" class="hover:text-brand-accent transition-colors" id="btn-video-audio">
+                  <i data-lucide="volume-x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: CATÁLOGO DE PRODUCTOS -->
+    <section id="catalog-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+      <div class="text-center mb-16">
+        <h3 class="text-xs tracking-[0.4em] uppercase text-brand-accent mb-3 font-semibold">Curaduría Exclusiva</h3>
+        <h2 class="text-3xl font-light tracking-widest uppercase text-brand-dark" id="catalog-title">Colección de Vanguardia</h2>
+        <div class="w-12 h-[1px] bg-brand-accent mx-auto mt-4"></div>
+      </div>
+
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8">
+        <!-- Generado dinámicamente por JS -->
+      </div>
+    </section>
+
+    <!-- SECCIÓN INTERACTIVA: DIARIO CREATIVO HIGHLIGHT -->
+    <section class="bg-brand-dark text-white py-20 px-4 relative overflow-hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(#2e2a27_1px,transparent_1px)] [background-size:16px_16px] opacity-20"></div>
+      <div class="max-w-4xl mx-auto text-center relative z-10">
+        <h3 class="text-brand-accent text-xs tracking-extreme uppercase mb-4">¿Inspirada para crear?</h3>
+        <h2 class="text-3xl sm:text-4xl font-light tracking-widest font-serif mb-6">Tu propio diario de Joyería & Bijouterie</h2>
+        <p class="text-gray-300 text-sm font-light max-w-2xl mx-auto leading-relaxed mb-10">
+          En BEELURO creemos en la joyería como arte conceptual. Usa nuestro Atelier interactivo para documentar tus fuentes de inspiración, registrar bocetos y crear conceptos mágicos asistidos por Inteligencia Artificial.
+        </p>
+        <button onclick="switchTab('diario')" class="bg-brand-accent hover:bg-brand-light hover:text-brand-dark text-brand-dark text-xs uppercase tracking-widest px-8 py-4 transition-all duration-300 font-semibold">
+          INGRESAR AL DIARIO CREATIVO
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- PESTAÑA 2: EL DIARIO DE BIJOUTERIE & ATELIER -->
+  <main id="tab-diary" class="tab-content hidden min-h-screen bg-brand-light/30 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-200 pb-8 mb-12 gap-4">
+        <div>
+          <span class="text-xs uppercase tracking-widest text-brand-accent font-semibold">Atelier & Cuaderno de Diseño</span>
+          <h2 class="text-4xl font-light tracking-widest text-brand-dark uppercase mt-1">EL DIARIO DE BEELURO</h2>
+          <p class="text-xs font-light text-brand-mid mt-2">Dibuja tus ideas, redacta inspiraciones y cataloga tus creaciones exclusivas.</p>
+        </div>
+        <button onclick="openNewEntryModal()" class="bg-brand-dark hover:bg-brand-mid text-white text-xs uppercase tracking-widest px-6 py-3 flex items-center gap-2 transition-all">
+          <i data-lucide="plus" class="w-4 h-4"></i> NUEVA ENTRADA DE DIARIO
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <!-- COLUMNA IZQUIERDA: GENERADOR DE CONCEPTOS & ASISTENTE CON IA -->
+        <div class="lg:col-span-5 space-y-8">
+          
+          <!-- GENERADOR DE BOCETOS -->
+          <div class="bg-white p-6 sm:p-8 border border-gray-200 shadow-sm relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-brand-accent"></div>
+            <div class="flex items-center gap-2.5 mb-4">
+              <i data-lucide="sparkles" class="w-5 h-5 text-brand-accent"></i>
+              <h3 class="text-xs uppercase tracking-widest font-semibold text-brand-dark">Generador de Bocetos por IA</h3>
+            </div>
+            <p class="text-xs font-light text-gray-500 mb-6">Describe tu joya soñada y nuestro motor inteligente creará una ilustración única para ilustrar tu diario.</p>
+            
+            <div class="space-y-4">
+              <div>
+                <label class="block text-[10px] uppercase tracking-wider text-brand-mid mb-2 font-medium">Idea o Descripción de la Joya</label>
+                <textarea id="ai-image-prompt" rows="3" class="w-full bg-brand-light/40 border border-gray-200 p-3 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Ej: Gargantilla de oro pulido con formas de coral marino e incrustaciones de jade verde..."></textarea>
+              </div>
+              <button onclick="generateJewelryImage()" class="w-full bg-brand-dark hover:bg-brand-mid text-brand-light text-xs uppercase tracking-widest py-3 font-semibold transition-all flex items-center justify-center gap-2">
+                <i data-lucide="wand-2" class="w-4 h-4"></i> GENERAR ILUSTRACIÓN
+              </button>
+            </div>
+
+            <div class="mt-6 border border-dashed border-gray-300 p-4 bg-brand-light/20 flex flex-col items-center justify-center min-h-[250px] relative rounded-sm">
+              <div id="ai-image-loading" class="hidden absolute inset-0 bg-white/95 flex-col items-center justify-center z-10 p-4">
+                <div class="w-12 h-12 rounded-full border-4 border-brand-accent border-t-transparent animate-spin mb-4"></div>
+                <p class="text-xs uppercase tracking-widest text-brand-dark font-medium animate-pulse" id="ai-loading-text">Moldeando metales preciosos...</p>
+                <p class="text-[10px] text-gray-400 mt-2 text-center">Esto podría tomar unos segundos...</p>
+              </div>
+
+              <div id="ai-image-placeholder" class="text-center space-y-3">
+                <i data-lucide="image" class="w-10 h-10 mx-auto text-gray-300 font-light"></i>
+                <p class="text-xs text-gray-400 font-light">Los bocetos generados aparecerán aquí.</p>
+              </div>
+
+              <img id="ai-image-result" class="hidden w-full h-auto object-cover max-h-[300px]" alt="Resultado Boceto IA">
+              
+              <button id="btn-use-sketch" class="hidden mt-4 w-full border border-brand-accent hover:bg-brand-accent hover:text-white text-brand-dark text-[11px] uppercase tracking-widest py-2 transition-all">
+                Usar en mi Siguiente Entrada
+              </button>
+            </div>
+          </div>
+
+          <!-- CHAT ASISTENTE DE DISEÑO -->
+          <div class="bg-white p-6 border border-gray-200 shadow-sm relative">
+            <div class="flex items-center gap-2 mb-4">
+              <i data-lucide="help-circle" class="w-5 h-5 text-brand-accent"></i>
+              <h3 class="text-xs uppercase tracking-widest font-semibold text-brand-dark">Consultor de Estilo & Materiales</h3>
+            </div>
+            <p class="text-xs font-light text-gray-500 mb-4">Pregúntale a nuestro curador virtual sobre combinaciones de metales, gemas, o pídele que redacte una entrada poética para tu diario.</p>
+            
+            <div class="border border-gray-100 rounded bg-brand-light/10 h-64 overflow-y-auto p-4 space-y-3 text-xs font-light" id="chat-messages">
+              <div class="bg-white p-3 rounded shadow-xs max-w-[85%]">
+                <p class="text-brand-accent font-semibold uppercase text-[9px] mb-1">Musa de Beeluro</p>
+                ¡Hola! Soy tu asistente creativo. ¿Estás buscando nombres refinados para tu nueva colección o quieres sugerencias de piedras semipreciosas para combinar con bronce pulido?
+              </div>
+            </div>
+
+            <div class="mt-3 flex gap-2">
+              <input type="text" id="chat-input" class="flex-1 bg-brand-light/40 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Pregúntame algo sobre diseño...">
+              <button onclick="sendAssistantMessage()" class="bg-brand-dark hover:bg-brand-mid text-white px-4 py-2 flex items-center justify-center transition-colors">
+                <i data-lucide="send" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- COLUMNA DERECHA: HISTORIAL DE ENTRADAS DEL DIARIO -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm uppercase tracking-widest font-semibold text-brand-dark flex items-center gap-2">
+              <i data-lucide="book" class="w-4 h-4"></i> Páginas Guardadas (<span id="diary-count">0</span>)
+            </h3>
+            <div class="text-[11px] text-gray-400 font-light">Colección Personal de Ideas</div>
+          </div>
+
+          <div id="diary-entries-container" class="space-y-6">
+            <!-- Cargado dinámicamente -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: DETALLES DE PRODUCTO (VISTA RÁPIDA / QUICKVIEW) -->
+  <div id="product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-3xl w-full max-h-[90vh] overflow-y-auto rounded-none shadow-2xl relative flex flex-col md:flex-row">
+      <button onclick="closeProductModal()" class="absolute top-4 right-4 text-brand-dark hover:text-brand-accent z-10 bg-white p-1 rounded-full">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="w-full md:w-1/2 bg-brand-light flex items-center justify-center">
+        <img id="modal-product-img" src="" alt="" class="w-full h-96 object-cover">
+      </div>
+
+      <div class="w-full md:w-1/2 p-6 sm:p-8 flex flex-col justify-between">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-brand-accent font-semibold" id="modal-product-cat">Categoría</span>
+          <h3 class="text-2xl font-light tracking-widest uppercase text-brand-dark mt-2" id="modal-product-title">Nombre</h3>
+          <p class="text-lg font-light text-brand-mid mt-4" id="modal-product-price">$U 0</p>
+          <div class="w-full h-[1px] bg-gray-100 my-4"></div>
+          <p class="text-xs text-gray-500 font-light leading-relaxed" id="modal-product-desc">
+            Descripción detallada del material y la técnica artesanal empleada para moldear esta exclusiva pieza de bijouterie fina.
+          </p>
+
+          <div class="mt-4 space-y-1.5 text-[10px] uppercase tracking-wider text-brand-mid font-medium">
+            <p>✓ Metal base: Plata esterlina 925 u Oro de 18K</p>
+            <p>✓ Acabado: Espejo texturado a mano</p>
+            <p>✓ Hecho en Uruguay</p>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button id="modal-add-btn" class="w-full bg-brand-dark hover:bg-brand-mid text-white text-xs uppercase tracking-widest py-4 transition-colors font-semibold">
+            AÑADIR A LA BOLSA DE COMPRA
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AGREGAR NUEVA ENTRADA AL DIARIO -->
+  <div id="new-entry-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-xl w-full rounded-none shadow-2xl relative p-6 sm:p-8">
+      <button onclick="closeNewEntryModal()" class="absolute top-4 right-4 text-brand-dark hover:text-brand-accent">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+
+      <div class="mb-6">
+        <h3 class="text-xs uppercase tracking-widest text-brand-accent font-semibold">Inspiración</h3>
+        <h2 class="text-2xl font-light tracking-widest text-brand-dark uppercase mt-1">Escribir en el Diario</h2>
+      </div>
+
+      <form id="diary-form" class="space-y-4" onsubmit="saveDiaryEntry(event)">
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-brand-mid font-medium mb-1.5">Título del Proyecto / Pieza</label>
+          <input type="text" id="entry-title" required class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Ej: Pendientes Constelación">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-brand-mid font-medium mb-1.5">Categoría</label>
+            <select id="entry-category" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none">
+              <option value="Aros">Aros</option>
+              <option value="Anillo">Anillo</option>
+              <option value="Gargantilla">Gargantilla</option>
+              <option value="Brazalete">Brazalete</option>
+              <option value="Conceptual">Conceptual / Otro</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase tracking-wider text-brand-mid font-medium mb-1.5">Materiales Principales</label>
+            <input type="text" id="entry-materials" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Plata 925, Perlas, etc.">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[10px] uppercase tracking-wider text-brand-mid font-medium mb-1.5">Inspiración y Notas Creativas</label>
+          <textarea id="entry-inspiration" rows="4" required class="w-full bg-brand-light/50 border border-gray-200 p-3 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Describe qué inspiró este diseño, sensaciones, formas o boceto..."></textarea>
+        </div>
+
+        <div id="attached-sketch-box" class="hidden bg-yellow-50 border border-brand-accent/50 p-2.5 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i data-lucide="image" class="w-4 h-4 text-brand-accent"></i>
+            <span class="text-[10px] text-brand-dark uppercase tracking-wider font-medium">Boceto de IA Adjunto listo</span>
+          </div>
+          <button type="button" onclick="detachSketch()" class="text-red-500 hover:text-red-700 text-xs">Quitar</button>
+        </div>
+
+        <button type="submit" class="w-full bg-brand-dark hover:bg-brand-mid text-white text-xs uppercase tracking-widest py-3 font-semibold transition-all">
+          GUARDAR ENTRADA EN EL DIARIO
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- FONDO TRANSLÚCIDO PARA EL CARRITO (OVERLAY) -->
+  <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-40 transition-opacity duration-300 opacity-0 hidden" onclick="toggleCart(false)"></div>
+
+  <!-- PANEL DESLIZABLE: CARRITO DE COMPRAS Y PROCESO DE CHEKOUT -->
+  <div id="cart-drawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-white z-50 shadow-2xl border-l border-gray-100 transform translate-x-full transition-all duration-300 ease-in-out flex flex-col justify-between hidden">
+    
+    <!-- CABECERA DEL CARRITO (Dinámica según el paso del checkout) -->
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <!-- Botón Volver -->
+        <button id="cart-back-btn" onclick="setCheckoutStep(1)" class="mr-2 text-brand-dark hover:text-brand-accent hidden">
+          <i data-lucide="arrow-left" class="w-5 h-5"></i>
+        </button>
+        <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-dark" id="cart-header-icon"></i>
+        <h3 class="text-xs uppercase tracking-extreme font-semibold text-brand-dark" id="cart-header-title">TU BOLSA DE COMPRA</h3>
+      </div>
+      <button onclick="toggleCart(false)" class="text-brand-dark hover:text-brand-accent p-2">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+    </div>
+
+    <!-- PASO 1: LISTADO DE PRODUCTOS EN LA BOLSA -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-4" id="checkout-step-1-container">
+      <div class="text-center py-12 text-gray-400 font-light space-y-3" id="cart-empty-msg">
+        <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto stroke-1"></i>
+        <p class="text-xs uppercase tracking-wider">Tu bolsa de compra está vacía.</p>
+        <button onclick="toggleCart(false); scrollToCatalog()" class="text-brand-accent text-xs underline font-normal uppercase">Explorar Catálogo</button>
+      </div>
+      <div id="cart-items-list" class="space-y-4">
+        <!-- Generado dinámicamente -->
+      </div>
+    </div>
+
+    <!-- PASO 2: FORMULARIO DE PAGO SEGURO -->
+    <div class="flex-1 overflow-y-auto p-6 space-y-6 hidden" id="checkout-step-2-container">
+      
+      <!-- Resumen de Importe -->
+      <div class="bg-brand-light/50 p-4 border border-brand-sand/40 flex justify-between items-center">
+        <span class="text-[10px] uppercase tracking-wider text-gray-500 font-medium">Total a abonar:</span>
+        <span class="text-sm font-semibold text-brand-dark" id="checkout-total-banner">$U 0</span>
+      </div>
+
+      <!-- Selector de Método de Pago -->
+      <div class="space-y-3">
+        <h4 class="text-[10px] uppercase tracking-widest text-brand-accent font-semibold">Selecciona la forma de pago</h4>
+        
+        <!-- Opción 1: Tarjeta -->
+        <label class="border border-gray-200 hover:border-brand-accent p-4 flex items-center justify-between cursor-pointer transition-colors bg-white select-none">
+          <div class="flex items-center gap-3">
+            <input type="radio" name="payment_method" value="card" checked onchange="togglePaymentInputs('card')" class="accent-brand-accent">
+            <span class="text-xs font-medium text-brand-dark uppercase tracking-wider">Tarjeta de Crédito / Débito</span>
+          </div>
+          <div class="flex gap-1.5 opacity-80">
+            <span class="text-[8px] border border-gray-300 px-1 py-0.5 rounded-xs font-semibold text-blue-800 bg-white">VISA</span>
+            <span class="text-[8px] border border-gray-300 px-1 py-0.5 rounded-xs font-semibold text-red-600 bg-white">MC</span>
+          </div>
+        </label>
+
+        <!-- Opción 2: Transferencia -->
+        <label class="border border-gray-200 hover:border-brand-accent p-4 flex items-center justify-between cursor-pointer transition-colors bg-white select-none">
+          <div class="flex items-center gap-3">
+            <input type="radio" name="payment_method" value="transfer" onchange="togglePaymentInputs('transfer')" class="accent-brand-accent">
+            <span class="text-xs font-medium text-brand-dark uppercase tracking-wider">Transferencia Bancaria</span>
+          </div>
+          <i data-lucide="landmark" class="w-4 h-4 text-brand-accent"></i>
+        </label>
+
+        <!-- Opción 3: Coordinar al recibir -->
+        <label class="border border-gray-200 hover:border-brand-accent p-4 flex items-center justify-between cursor-pointer transition-colors bg-white select-none">
+          <div class="flex items-center gap-3">
+            <input type="radio" name="payment_method" value="cod" onchange="togglePaymentInputs('cod')" class="accent-brand-accent">
+            <span class="text-xs font-medium text-brand-dark uppercase tracking-wider">Entrega / POS Presencial</span>
+          </div>
+          <i data-lucide="truck" class="w-4 h-4 text-brand-accent"></i>
+        </label>
+      </div>
+
+      <!-- CAMPOS DINÁMICOS DE PAGO -->
+      <div id="payment-details-wrapper" class="space-y-4 pt-2">
+        
+        <!-- Panel Tarjeta (Por Defecto) -->
+        <div id="panel-pay-card" class="space-y-3">
+          <div class="bg-brand-dark text-white p-4 rounded-sm shadow-inner relative overflow-hidden flex flex-col justify-between h-40">
+            <div class="absolute -right-10 -bottom-10 w-32 h-32 rounded-full bg-brand-accent/10"></div>
+            <div class="flex justify-between items-start z-10">
+              <span class="text-[9px] tracking-widest font-light uppercase text-brand-accent">BEELURO VIP</span>
+              <i data-lucide="credit-card" class="w-6 h-6 text-brand-accent font-light"></i>
+            </div>
+            <div class="z-10 text-center py-2">
+              <p class="font-mono text-sm tracking-[0.2em]" id="card-preview-num">•••• •••• •••• ••••</p>
+            </div>
+            <div class="flex justify-between items-end z-10 text-[9px] uppercase font-light">
+              <div>
+                <span class="text-gray-400 block text-[7px]">Titular</span>
+                <span id="card-preview-name" class="tracking-wider">TITULAR DE LA TARJETA</span>
+              </div>
+              <div>
+                <span class="text-gray-400 block text-[7px]">Vence</span>
+                <span id="card-preview-exp">MM/AA</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 text-xs font-light">
+            <div>
+              <label class="block text-[8px] uppercase tracking-wider font-semibold text-brand-mid mb-1">Número de Tarjeta</label>
+              <input type="text" id="card-num" maxlength="19" oninput="formatCardNum(this)" placeholder="4000 1234 5678 9010" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[8px] uppercase tracking-wider font-semibold text-brand-mid mb-1">Nombre Impreso</label>
+              <input type="text" id="card-name" oninput="formatCardName(this)" placeholder="MARÍA RODRÍGUEZ" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none uppercase">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[8px] uppercase tracking-wider font-semibold text-brand-mid mb-1">Vencimiento</label>
+                <input type="text" id="card-exp" maxlength="5" oninput="formatCardExp(this)" placeholder="MM/AA" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-[8px] uppercase tracking-wider font-semibold text-brand-mid mb-1">CVC (Seguridad)</label>
+                <input type="password" id="card-cvc" maxlength="4" placeholder="•••" class="w-full bg-brand-light/50 border border-gray-200 px-3 py-2 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Transferencia Bancaria -->
+        <div id="panel-pay-transfer" class="hidden space-y-4 bg-brand-light p-4 border border-brand-sand/50">
+          <div class="space-y-3 text-xs">
+            <p class="text-[10px] text-brand-dark/70 font-light leading-relaxed">Transfiere el importe a cualquiera de nuestras cuentas bancarias uruguayas oficiales y envíanos el comprobante por WhatsApp para despachar tu joya de inmediato.</p>
+            
+            <div class="border-t border-brand-sand/40 pt-2 space-y-2.5">
+              <div class="flex justify-between items-center bg-white p-2.5 border border-gray-100">
+                <div>
+                  <span class="text-[9px] text-gray-400 block font-semibold uppercase">BANCO ITAÚ (Caja Ahorro $)</span>
+                  <span class="font-mono text-xs text-brand-dark font-medium">Cta: 3948502</span>
+                </div>
+                <button onclick="copyToClipboard('3948502')" class="text-brand-accent hover:text-brand-dark text-[10px] uppercase font-semibold">Copiar</button>
+              </div>
+
+              <div class="flex justify-between items-center bg-white p-2.5 border border-gray-100">
+                <div>
+                  <span class="text-[9px] text-gray-400 block font-semibold uppercase">BANCO REPUBLICA - BROU (Caja Ahorro $)</span>
+                  <span class="font-mono text-xs text-brand-dark font-medium">Cta: 0015-0498271</span>
+                </div>
+                <button onclick="copyToClipboard('0015-0498271')" class="text-brand-accent hover:text-brand-dark text-[10px] uppercase font-semibold">Copiar</button>
+              </div>
+            </div>
+
+            <p class="text-[9px] text-brand-accent font-medium italic">* Titular: BEELURO S.A. | RUT: 218492040011</p>
+          </div>
+        </div>
+
+        <!-- Panel Coordinar al entregar -->
+        <div id="panel-pay-cod" class="hidden bg-brand-light/30 p-4 border border-brand-sand/30">
+          <div class="flex gap-3 items-start">
+            <i data-lucide="check-circle" class="w-5 h-5 text-brand-accent flex-shrink-0 mt-0.5"></i>
+            <p class="text-xs text-gray-600 font-light leading-relaxed">
+              Abone de forma segura y cómoda directamente en su domicilio cuando reciba su pedido. Aceptamos efectivo, transferencia directa al instante de la entrega o tarjeta mediante nuestro lector de POS móvil. 
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PANTALLA 3: COMPRA EXITOSA -->
+    <div class="flex-1 overflow-y-auto p-6 flex flex-col justify-center items-center text-center hidden" id="checkout-success-container">
+      <div class="w-16 h-16 bg-brand-accent/15 rounded-full flex items-center justify-center text-brand-accent mb-6">
+        <i data-lucide="shield-check" class="w-8 h-8 stroke-1"></i>
+      </div>
+      <span class="text-[10px] uppercase tracking-widest text-brand-accent font-bold">¡Pago recibido con éxito!</span>
+      <h3 class="text-2xl font-light tracking-widest text-brand-dark uppercase mt-2 font-serif">BEELURO Agradece tu preferencia</h3>
+      <p class="text-xs text-gray-500 font-light mt-4 max-w-xs leading-relaxed">
+        Su orden ha sido procesada de manera segura. Estamos moldeando y empacando sus joyas de bijouterie fina con el máximo cuidado artesanal.
+      </p>
+
+      <div class="w-full bg-brand-light p-4 border border-brand-sand/40 my-6 text-xs text-left space-y-1.5 font-mono">
+        <p><span class="text-gray-400">Orden:</span> #<span id="order-id-label">BL-0000</span></p>
+        <p><span class="text-gray-400">Método:</span> <span id="order-method-label">Tarjeta de Crédito</span></p>
+        <p><span class="text-gray-400">Importe:</span> <span id="order-total-label">$U 0</span></p>
+      </div>
+
+      <button onclick="sendOrderDetailsWhatsApp()" class="w-full bg-brand-dark hover:bg-brand-mid text-white text-xs uppercase tracking-widest py-3 font-semibold flex items-center justify-center gap-2 transition-all">
+        <i data-lucide="message-circle" class="w-4 h-4 text-green-400"></i> ENVIAR DETALLES POR WHATSAPP
+      </button>
+      <button onclick="resetAndCloseCart()" class="text-[10px] uppercase tracking-widest text-brand-accent hover:text-brand-dark font-semibold mt-4 transition-colors">Volver a la Tienda</button>
+    </div>
+
+    <!-- PIE DEL CARRITO (SUBTOTALES Y BOTONES DE PROCESADO) -->
+    <div class="p-6 border-t border-gray-100 bg-brand-light/30 space-y-4" id="cart-footer-actions">
+      <div class="flex justify-between items-center text-xs uppercase tracking-wider">
+        <span class="text-gray-500 font-light">Subtotal</span>
+        <span class="font-semibold text-brand-dark text-sm" id="cart-subtotal">$U 0</span>
+      </div>
+      <div class="flex justify-between items-center text-[10px] uppercase tracking-wider text-brand-accent">
+        <span>Envío nacional</span>
+        <span class="font-medium">¡Gratis!</span>
+      </div>
+      
+      <div class="pt-2">
+        <button id="btn-proceed-checkout" onclick="setCheckoutStep(2)" class="w-full bg-brand-dark hover:bg-brand-mid text-white text-xs uppercase tracking-widest py-4 transition-all font-semibold flex items-center justify-center gap-2">
+          PROCEDER AL PAGO
+        </button>
+
+        <button id="btn-confirm-payment" onclick="executeSimulatedPayment()" class="w-full bg-brand-accent hover:bg-brand-dark hover:text-white text-brand-dark text-xs uppercase tracking-widest py-4 transition-all font-semibold flex items-center justify-center gap-2 hidden">
+          <i data-lucide="shield-check" class="w-4 h-4"></i> CONFIRMAR Y ABONAR COMPRA
+        </button>
+
+        <div class="flex justify-center items-center gap-3 mt-4 opacity-40 text-[9px] uppercase tracking-wider">
+          <i data-lucide="lock" class="w-3 h-3 text-brand-accent"></i>
+          <span>Pago Encriptado SSL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BÚSQUEDA -->
+  <div id="search-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-xl w-full p-6 sm:p-8 rounded-none shadow-2xl relative">
+      <button onclick="toggleSearchModal()" class="absolute top-4 right-4 text-brand-dark hover:text-brand-accent">
+        <i data-lucide="x" class="w-6 h-6"></i>
+      </button>
+      
+      <h3 class="text-xs uppercase tracking-widest text-brand-accent font-semibold mb-4">Buscar en Beeluro</h3>
+      <div class="flex gap-2">
+        <input type="text" id="search-input" oninput="handleSearch(this.value)" class="flex-1 bg-brand-light/50 border border-brand-mid/20 p-3 text-xs focus:ring-1 focus:ring-brand-accent focus:outline-none" placeholder="Buscar aros, brazaletes, anillos...">
+      </div>
+      
+      <div class="mt-6">
+        <p class="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Sugerencias:</p>
+        <div class="flex flex-wrap gap-2 text-[10px] uppercase tracking-widest">
+          <button onclick="quickSearch('Anillo')" class="bg-brand-light hover:bg-brand-accent hover:text-white px-3 py-1 transition-colors">Anillos</button>
+          <button onclick="quickSearch('Plata')" class="bg-brand-light hover:bg-brand-accent hover:text-white px-3 py-1 transition-colors">Plata</button>
+          <button onclick="quickSearch('Oro')" class="bg-brand-light hover:bg-brand-accent hover:text-white px-3 py-1 transition-colors">Oro</button>
+          <button onclick="quickSearch('Aros')" class="bg-brand-light hover:bg-brand-accent hover:text-white px-3 py-1 transition-colors">Aros</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="bg-brand-dark text-white pt-16 pb-8 border-t border-brand-mid">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+      <div>
+        <h4 class="text-lg font-light tracking-extreme text-white mb-4">BEELURO</h4>
+        <p class="text-[11px] text-gray-400 tracking-wider uppercase mb-4">Atelier de Joyería Fina</p>
+        <p class="text-xs text-gray-400 leading-relaxed font-light">
+          Creando piezas únicas inspiradas en el minimalismo arquitectónico y el pulido artesanal. 
+        </p>
+      </div>
+
+      <div>
+        <h5 class="text-xs uppercase tracking-widest text-brand-accent font-semibold mb-4">Explorar</h5>
+        <ul class="space-y-2 text-xs font-light text-gray-400">
+          <li><a href="#" onclick="filterCategory('all')" class="hover:text-brand-accent transition-colors">Todos los Diseños</a></li>
+          <li><a href="#" onclick="filterCategory('aros')" class="hover:text-brand-accent transition-colors">Aros Vanguardistas</a></li>
+          <li><a href="#" onclick="filterCategory('brazaletes')" class="hover:text-brand-accent transition-colors">Brazaletes Escultóricos</a></li>
+          <li><a href="#" onclick="switchTab('diario')" class="hover:text-brand-accent transition-colors">Atelier de Diseño Creativo</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 class="text-xs uppercase tracking-widest text-brand-accent font-semibold mb-4">Información</h5>
+        <ul class="space-y-2 text-xs font-light text-gray-400">
+          <li><a href="#" class="hover:text-brand-accent transition-colors">Guía de Talles de Anillos</a></li>
+          <li><a href="#" class="hover:text-brand-accent transition-colors">Cuidado de Piezas</a></li>
+          <li><a href="#" class="hover:text-brand-accent transition-colors">Políticas de Envío</a></li>
+          <li><a href="#" class="hover:text-brand-accent transition-colors">Preguntas Frecuentes</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5 class="text-xs uppercase tracking-widest text-brand-accent font-semibold mb-4">Formas de Pago</h5>
+        <p class="text-xs text-gray-400 mb-4 font-light">Aceptamos tarjetas de crédito locales/internacionales, transferencia bancaria e interbancaria BROU e Itaú, y cobros contra entrega.</p>
+        <!-- Logotipos de formas de pago premium -->
+        <div class="flex flex-wrap gap-2 opacity-75">
+          <span class="text-[10px] tracking-widest text-brand-accent border border-brand-mid/80 bg-brand-mid/20 px-3 py-1 font-semibold">VISA</span>
+          <span class="text-[10px] tracking-widest text-brand-accent border border-brand-mid/80 bg-brand-mid/20 px-3 py-1 font-semibold">MASTERCARD</span>
+          <span class="text-[10px] tracking-widest text-brand-accent border border-brand-mid/80 bg-brand-mid/20 px-3 py-1 font-semibold">AMEX</span>
+          <span class="text-[10px] tracking-widest text-brand-accent border border-brand-mid/80 bg-brand-mid/20 px-3 py-1 font-semibold">BROU</span>
+          <span class="text-[10px] tracking-widest text-brand-accent border border-brand-mid/80 bg-brand-mid/20 px-3 py-1 font-semibold">ITAÚ</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-brand-mid/45 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-gray-500 tracking-wider uppercase font-light">
+      <p>&copy; 2026 BEELURO. Todos los derechos reservados. Hecho en Uruguay.</p>
+      <div class="flex space-x-6">
+        <a href="#" class="hover:text-brand-accent transition-colors"><i data-lucide="instagram" class="w-4 h-4"></i></a>
+        <a href="#" class="hover:text-brand-accent transition-colors"><i data-lucide="facebook" class="w-4 h-4"></i></a>
+        <a href="#" class="hover:text-brand-accent transition-colors"><i data-lucide="message-circle" class="w-4 h-4"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BOTÓN DE WHATSAPP FLOTANTE -->
+  <a href="https://wa.me/59800000000?text=Hola%20Beeluro!%20Me%20gustaría%20saber%20más%20sobre%20sus%20piezas%20únicas." target="_blank" class="fixed bottom-6 right-6 bg-brand-dark hover:bg-brand-accent text-white p-4 rounded-full shadow-2xl transition-all hover:scale-105 z-40 flex items-center justify-center border border-brand-accent" title="Hablemos por WhatsApp">
+    <i data-lucide="message-circle" class="w-6 h-6 text-green-400"></i>
+  </a>
+
+  <!-- LÓGICA Y DATOS DE LA APLICACIÓN -->
+  <script>
+    lucide.createIcons();
+
+    // 1. Catálogo de Productos Originales con precios actualizados a Pesos Uruguayos ($U)
+    const PRODUCTS = [
+      {
+        id: '1',
+        title: 'Aros Orbit Plata',
+        category: 'aros',
+        price: 350.00, // <--- Precio modificado de $U 3.400 a $U 350
+        desc: 'Aros de contorno circular perfecto en Plata 925 maciza. Acabado pulido espejo de brillo estelar, con cierre invisible de diseño minimalista. Peso pluma para confort diario.',
+        image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80',
+        meta: 'Plata Maciza 925'
+      },
+      {
+        id: '2',
+        title: 'Brazalete Escultórico Dune',
+        category: 'brazaletes',
+        price: 7800.00,
+        desc: 'Un brazalete ancho y de contornos orgánicos que emula las formas ondulantes de las dunas costeras uruguayas. Bañado en Oro de 18 quilates de acabado satinado.',
+        image: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=800&q=80',
+        meta: 'Oro Satinado 18K'
+      },
+      {
+        id: '3',
+        title: 'Gargantilla Hebra Minimal',
+        category: 'gargantillas',
+        price: 5600.00,
+        desc: 'Cadena de torsión ultra fina de elegancia fluida. Acompaña el cuello con un aplique central de perla barroca de agua dulce, seleccionada manualmente.',
+        image: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80',
+        meta: 'Plata & Perla Barroca'
+      },
+      {
+        id: '4',
+        title: 'Anillo Möbius Oro',
+        category: 'anillos',
+        price: 4400.00,
+        desc: 'Diseño geométrico que representa la cinta infinita de Möbius. Confeccionado en bronce noble con un triple baño de oro amarillo de 24K.',
+        image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80',
+        meta: 'Oro Amarillo 24K'
+      },
+      {
+        id: '5',
+        title: 'Aros Esfera Martillados',
+        category: 'aros',
+        price: 3800.00,
+        desc: 'Aros colgantes compuestos por semiesferas trabajadas con la técnica tradicional de martillado a mano. Capturan la luz solar con un brillo centelleante.',
+        image: 'https://images.unsplash.com/photo-1630019852942-f89202989a59?auto=format&fit=crop&w=800&q=80',
+        meta: 'Martillado Artesanal'
+      },
+      {
+        id: '6',
+        title: 'Lentes de Sol Silhouette',
+        category: 'lentes',
+        price: 7000.00,
+        desc: 'Estructura metálica facetada chapada en oro de baja ley. Cristales ahumados degradé con protección UV400 completa, aportando un aire de misterio y lujo indiscutible.',
+        image: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80',
+        meta: 'Protección UV400 / Edición Limitada'
+      }
+    ];
+
+    // 2. Diario de Diseños & Inspiración
+    let DIARY_ENTRIES = [
+      {
+        id: '1',
+        title: 'Aros Alborada Marina',
+        category: 'Aros',
+        materials: 'Bronce Pulido & Madreperla',
+        inspiration: 'Me inspiré en el amanecer frío en la playa de José Ignacio. La forma redonda imita el disco solar, y la madreperla representa el agua nacarada sobre la arena.',
+        sketch: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=600&q=80',
+        date: '28 de Mayo, 2026'
+      },
+      {
+        id: '2',
+        title: 'Gargantilla Brutalista Cabo',
+        category: 'Gargantilla',
+        materials: 'Plata de ley oxidada',
+        inspiration: 'Estructuras de roca basáltica del Cabo Polonio. Los bordes se mantendrán rústicos, sin pulido fino para mantener la fuerza natural del metal bruto.',
+        sketch: '',
+        date: '15 de Mayo, 2026'
+      }
+    ];
+
+    let CART = [];
+    let CURRENT_GENERATED_SKETCH = '';
+    const apiKey = ""; 
+
+    let CURRENT_CHECKOUT_STEP = 1; 
+    let LAST_GENERATED_ORDER_ID = '';
+
+    // Interactividad de Video de Bijouterie
+    let playPromise = null;
+
+    function toggleVideoPlay() {
+      const video = document.getElementById('atelier-video');
+      const overlay = document.getElementById('video-overlay');
+
+      if (video.paused) {
+        playPromise = video.play();
+        
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+          }).catch(error => {
+            console.warn("La reproducción automática o el inicio de vídeo fue prevenido:", error);
+          });
+        }
+      } else {
+        if (playPromise !== null) {
+          playPromise.then(() => {
+            video.pause();
+            overlay.classList.remove('opacity-0', 'pointer-events-none');
+          });
+        } else {
+          video.pause();
+          overlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+      }
+    }
+
+    // Activar audio
+    function toggleVideoMute() {
+      const video = document.getElementById('atelier-video');
+      const muteBtn = document.getElementById('btn-video-audio');
+      
+      video.muted = !video.muted;
+      if (video.muted) {
+        muteBtn.innerHTML = '<i data-lucide="volume-x" class="w-4 h-4"></i>';
+      } else {
+        muteBtn.innerHTML = '<i data-lucide="volume-2" class="w-4 h-4"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    document.getElementById('atelier-video').addEventListener('click', () => {
+      toggleVideoPlay();
+    });
+
+    // Renderizar listado de productos de la tienda
+    function renderProducts(items) {
+      const container = document.getElementById('products-grid');
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 text-gray-400 font-light">
+            No se encontraron diseños que coincidan con la búsqueda.
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'group flex flex-col justify-between border border-gray-100 hover:border-brand-accent/20 p-4 transition-all duration-300 bg-white relative';
+        
+        div.innerHTML = `
+          <div>
+            <div class="w-full h-80 overflow-hidden bg-brand-light mb-4 relative">
+              <img 
+                src="${product.image}" 
+                alt="${product.title}" 
+                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80'"
+              >
+              ${product.category === 'sale' ? '<span class="absolute top-3 left-3 bg-red-700 text-white text-[9px] tracking-widest px-2.5 py-1 uppercase">Sale</span>' : ''}
+              
+              <button onclick="openProductModal('${product.id}')" class="absolute bottom-3 left-3 right-3 bg-white/90 hover:bg-brand-dark hover:text-white text-brand-dark text-[10px] tracking-widest uppercase py-2.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 backdrop-blur-xs">
+                Vista Rápida
+              </button>
+            </div>
+            
+            <div class="flex justify-between items-start">
+              <div>
+                <p class="text-[9px] uppercase tracking-widest text-brand-accent font-semibold">${product.meta}</p>
+                <h4 class="text-xs uppercase tracking-widest text-brand-dark mt-1 font-light group-hover:text-brand-accent transition-colors">${product.title}</h4>
+              </div>
+              <p class="text-xs font-semibold text-brand-mid">$U ${product.price.toLocaleString('es-UY')}</p>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-gray-50 flex gap-2">
+            <button onclick="addToCart('${product.id}')" class="flex-1 bg-brand-dark hover:bg-brand-mid text-white text-[10px] uppercase tracking-widest py-2.5 transition-colors font-medium">
+              Añadir Bolsa
+            </button>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    // Renderizar entradas del diario
+    function renderDiaryEntries() {
+      const container = document.getElementById('diary-entries-container');
+      const countLabel = document.getElementById('diary-count');
+      container.innerHTML = '';
+      countLabel.textContent = DIARY_ENTRIES.length;
+
+      if (DIARY_ENTRIES.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-16 bg-white border border-gray-100 rounded-sm">
+            <i data-lucide="book-open" class="w-12 h-12 text-gray-300 mx-auto mb-3"></i>
+            <p class="text-xs uppercase tracking-widest text-gray-400">Aún no hay páginas escritas en el diario</p>
+            <p class="text-[10px] text-gray-400 mt-1">Escribe tu primera idea o genera un boceto de IA.</p>
+          </div>
+        `;
+        return;
+      }
+
+      DIARY_ENTRIES.forEach(entry => {
+        const item = document.createElement('article');
+        item.className = 'bg-white border border-gray-200 p-6 sm:p-8 space-y-6 shadow-sm hover:shadow-md transition-shadow relative';
+        
+        const sketchHtml = entry.sketch 
+          ? `<div class="w-full sm:w-1/3 rounded-sm overflow-hidden border border-gray-100 bg-brand-light">
+               <img src="${entry.sketch}" alt="Boceto ${entry.title}" class="w-full h-full object-cover max-h-[160px]">
+             </div>`
+          : '';
+
+        item.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-[9px] uppercase tracking-widest bg-brand-light text-brand-accent px-2.5 py-0.5 rounded-full font-medium border border-brand-accent/20">${entry.category}</span>
+                <span class="text-[10px] text-gray-400 font-light">${entry.date}</span>
+              </div>
+              <h4 class="text-lg font-light tracking-widest text-brand-dark uppercase mt-2">${entry.title}</h4>
+            </div>
+            <button onclick="deleteDiaryEntry('${entry.id}')" class="text-gray-300 hover:text-red-600 transition-colors" title="Borrar entrada">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-6">
+            ${sketchHtml}
+            <div class="flex-1 space-y-3">
+              <p class="text-xs text-gray-600 font-light italic leading-relaxed">
+                "${entry.inspiration}"
+              </p>
+              <p class="text-[10px] uppercase tracking-wider text-brand-accent font-medium">
+                <span class="text-gray-400">Materiales sugeridos:</span> ${entry.materials || 'No especificados'}
+              </p>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+      lucide.createIcons();
+    }
+
+    // Navegar entre las pestañas (Tienda y Diario)
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+      document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('border-b', 'border-brand-accent');
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Filtrado del catálogo
+    function filterCategory(categoryName) {
+      switchTab('shop');
+      const title = document.getElementById('catalog-title');
+      
+      if (categoryName === 'all') {
+        renderProducts(PRODUCTS);
+        title.textContent = "Colección de Vanguardia";
+      } else if (categoryName === 'sale') {
+        const filtered = PRODUCTS.filter(p => p.category === 'sale');
+        renderProducts(filtered);
+        title.textContent = "Edición Sale & Descuentos";
+      } else {
+        const filtered = PRODUCTS.filter(p => p.category === categoryName);
+        renderProducts(filtered);
+        title.textContent = `Diseños de ${categoryName}`;
+      }
+      scrollToCatalog();
+    }
+
+    // Scroll al catálogo
+    function scrollToCatalog() {
+      const element = document.getElementById('catalog-section');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    // Búsqueda
+    function handleSearch(query) {
+      if (!query.trim()) {
+        renderProducts(PRODUCTS);
+        return;
+      }
+      const filtered = PRODUCTS.filter(p => 
+        p.title.toLowerCase().includes(query.toLowerCase()) || 
+        p.desc.toLowerCase().includes(query.toLowerCase()) ||
+        p.category.toLowerCase().includes(query.toLowerCase())
+      );
+      renderProducts(filtered);
+    }
+
+    function quickSearch(tag) {
+      document.getElementById('search-input').value = tag;
+      handleSearch(tag);
+      toggleSearchModal();
+      scrollToCatalog();
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    function toggleSearchModal() {
+      const modal = document.getElementById('search-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function openProductModal(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (!product) return;
+
+      document.getElementById('modal-product-img').src = product.image;
+      document.getElementById('modal-product-cat').textContent = product.meta;
+      document.getElementById('modal-product-title').textContent = product.title;
+      document.getElementById('modal-product-price').textContent = `$U ${product.price.toLocaleString('es-UY')}`;
+      document.getElementById('modal-product-desc').textContent = product.desc;
+      
+      const addBtn = document.getElementById('modal-add-btn');
+      addBtn.onclick = () => {
+        addToCart(product.id);
+        closeProductModal();
+      };
+
+      document.getElementById('product-modal').classList.remove('hidden');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+    }
+
+    function openNewEntryModal() {
+      document.getElementById('new-entry-modal').classList.remove('hidden');
+    }
+
+    function closeNewEntryModal() {
+      document.getElementById('new-entry-modal').classList.add('hidden');
+    }
+
+    // CONTROL DEL FLUJO DE PASOS EN EL CHECKOUT
+    function setCheckoutStep(step) {
+      CURRENT_CHECKOUT_STEP = step;
+      
+      const cartTitle = document.getElementById('cart-header-title');
+      const cartIcon = document.getElementById('cart-header-icon');
+      const backBtn = document.getElementById('cart-back-btn');
+      
+      const step1Container = document.getElementById('checkout-step-1-container');
+      const step2Container = document.getElementById('checkout-step-2-container');
+      const successContainer = document.getElementById('checkout-success-container');
+      const footerActions = document.getElementById('cart-footer-actions');
+      
+      const btnProceed = document.getElementById('btn-proceed-checkout');
+      const btnConfirm = document.getElementById('btn-confirm-payment');
+
+      // Calcular total para el banner del paso 2
+      let total = 0;
+      CART.forEach(item => {
+        total += item.product.price * item.quantity;
+      });
+      document.getElementById('checkout-total-banner').textContent = `$U ${total.toLocaleString('es-UY')}`;
+
+      if (step === 1) {
+        cartTitle.textContent = "TU BOLSA DE COMPRA";
+        backBtn.classList.add('hidden');
+        cartIcon.className = "w-5 h-5 text-brand-dark";
+        cartIcon.setAttribute('data-lucide', 'shopping-bag');
+        
+        step1Container.classList.remove('hidden');
+        step2Container.classList.add('hidden');
+        successContainer.classList.add('hidden');
+        footerActions.classList.remove('hidden');
+        
+        btnProceed.classList.remove('hidden');
+        btnConfirm.classList.add('hidden');
+      } 
+      else if (step === 2) {
+        if (CART.length === 0) {
+          showToast('Bolsa Vacía', 'Agrega algún producto para proceder con el pago.', 'error');
+          return;
+        }
+        cartTitle.textContent = "PAGO SEGURO";
+        backBtn.classList.remove('hidden');
+        cartIcon.className = "w-5 h-5 text-brand-accent";
+        cartIcon.setAttribute('data-lucide', 'shield-check');
+        
+        step1Container.classList.add('hidden');
+        step2Container.classList.remove('hidden');
+        successContainer.classList.add('hidden');
+        footerActions.classList.remove('hidden');
+        
+        btnProceed.classList.add('hidden');
+        btnConfirm.classList.remove('hidden');
+      }
+      else if (step === 3) {
+        cartTitle.textContent = "CONFIRMACIÓN";
+        backBtn.classList.add('hidden');
+        cartIcon.className = "w-5 h-5 text-green-600";
+        cartIcon.setAttribute('data-lucide', 'check-circle');
+
+        step1Container.classList.add('hidden');
+        step2Container.classList.add('hidden');
+        successContainer.classList.remove('hidden');
+        footerActions.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    // Conmutar entre los inputs de pago dinámicos
+    function togglePaymentInputs(method) {
+      document.getElementById('panel-pay-card').classList.add('hidden');
+      document.getElementById('panel-pay-transfer').classList.add('hidden');
+      document.getElementById('panel-pay-cod').classList.add('hidden');
+
+      if (method === 'card') {
+        document.getElementById('panel-pay-card').classList.remove('hidden');
+      } else if (method === 'transfer') {
+        document.getElementById('panel-pay-transfer').classList.remove('hidden');
+      } else if (method === 'cod') {
+        document.getElementById('panel-pay-cod').classList.remove('hidden');
+      }
+    }
+
+    // FORMATEO DINÁMICO DEL FORMULARIO DE TARJETA
+    function formatCardNum(el) {
+      let val = el.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+      let matches = val.match(/\d{4,16}/g);
+      let match = matches && matches[0] || '';
+      let parts = [];
+
+      for (let i = 0, len = match.length; i < len; i += 4) {
+        parts.push(match.substring(i, i + 4));
+      }
+
+      if (parts.length > 0) {
+        el.value = parts.join(' ');
+        document.getElementById('card-preview-num').textContent = parts.join(' ');
+      } else {
+        el.value = val;
+        document.getElementById('card-preview-num').textContent = val || '•••• •••• •••• ••••';
+      }
+    }
+
+    function formatCardName(el) {
+      let val = el.value.toUpperCase();
+      document.getElementById('card-preview-name').textContent = val || 'TITULAR DE LA TARJETA';
+    }
+
+    function formatCardExp(el) {
+      let val = el.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+      if (val.length >= 2) {
+        el.value = val.substring(0,2) + '/' + val.substring(2,4);
+        document.getElementById('card-preview-exp').textContent = el.value;
+      } else {
+        el.value = val;
+        document.getElementById('card-preview-exp').textContent = val || 'MM/AA';
+      }
+    }
+
+    // Copiar al portapapeles
+    function copyToClipboard(text) {
+      const dummy = document.createElement("input");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+      showToast('Copiado', 'Número de cuenta guardado en el portapapeles.', 'success');
+    }
+
+    // Simular el cobro de la compra
+    function executeSimulatedPayment() {
+      const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+      
+      if (selectedMethod === 'card') {
+        const num = document.getElementById('card-num').value.trim();
+        const name = document.getElementById('card-name').value.trim();
+        const exp = document.getElementById('card-exp').value.trim();
+        const cvc = document.getElementById('card-cvc').value.trim();
+
+        if (num.length < 15 || name.length < 4 || exp.length < 5 || cvc.length < 3) {
+          showToast('Datos Incompletos', 'Por favor complete todos los campos de su tarjeta de forma correcta.', 'error');
+          return;
+        }
+      }
+
+      const btnConfirm = document.getElementById('btn-confirm-payment');
+      btnConfirm.disabled = true;
+      btnConfirm.innerHTML = `<span class="w-4 h-4 rounded-full border-2 border-brand-dark border-t-transparent animate-spin"></span> PROCESANDO TRANSACCIÓN...`;
+
+      setTimeout(() => {
+        LAST_GENERATED_ORDER_ID = 'BL-' + Math.floor(100000 + Math.random() * 900000);
+        let totalVal = 0;
+        CART.forEach(i => totalVal += i.product.price * i.quantity);
+
+        let methodText = "Tarjeta de Crédito / Débito";
+        if (selectedMethod === 'transfer') methodText = "Transferencia Bancaria";
+        if (selectedMethod === 'cod') methodText = "Contra Entrega / POS";
+
+        document.getElementById('order-id-label').textContent = LAST_GENERATED_ORDER_ID;
+        document.getElementById('order-method-label').textContent = methodText;
+        document.getElementById('order-total-label').textContent = `$U ${totalVal.toLocaleString('es-UY')}`;
+
+        btnConfirm.disabled = false;
+        btnConfirm.innerHTML = `<i data-lucide="shield-check" class="w-4 h-4"></i> CONFIRMAR Y ABONAR COMPRA`;
+        
+        setCheckoutStep(3); 
+        showToast('Pago Aprobado', '¡Muchas gracias por su compra!', 'success');
+      }, 2500);
+    }
+
+    // WhatsApp checkout
+    function sendOrderDetailsWhatsApp() {
+      let methodLabel = document.getElementById('order-method-label').textContent;
+      let totalLabel = document.getElementById('order-total-label').textContent;
+      
+      let text = `¡Hola Beeluro! ✨ Acabo de realizar una compra segura en su Atelier Web:\n\n`;
+      text += `📍 *Nro de Orden:* ${LAST_GENERATED_ORDER_ID}\n`;
+      text += `💳 *Forma de Pago:* ${methodLabel}\n`;
+      text += `💰 *Total del Pedido:* ${totalLabel}\n\n`;
+      text += `*Artículos seleccionados:*\n`;
+      
+      CART.forEach(item => {
+        text += `- ${item.product.title} (${item.quantity}u.) — $U ${(item.product.price * item.quantity).toLocaleString('es-UY')}\n`;
+      });
+
+      text += `\nQuedo a la espera de la confirmación y coordinación del envío nacional exprés. ¡Muchas gracias!`;
+      
+      const whatsappUrl = `https://wa.me/59800000000?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    function resetAndCloseCart() {
+      CART = [];
+      updateCartUI();
+      toggleCart(false);
+      setTimeout(() => {
+        setCheckoutStep(1);
+        document.getElementById('card-num').value = '';
+        document.getElementById('card-name').value = '';
+        document.getElementById('card-exp').value = '';
+        document.getElementById('card-cvc').value = '';
+        document.getElementById('card-preview-num').textContent = '•••• •••• •••• ••••';
+        document.getElementById('card-preview-name').textContent = 'TITULAR DE LA TARJETA';
+        document.getElementById('card-preview-exp').textContent = 'MM/AA';
+      }, 400);
+    }
+
+    function toggleCart(forceOpen) {
+      const drawer = document.getElementById('cart-drawer');
+      const overlay = document.getElementById('cart-overlay');
+      
+      const isCurrentlyHidden = drawer.classList.contains('hidden');
+      const shouldOpen = (forceOpen !== undefined) ? forceOpen : isCurrentlyHidden;
+
+      if (shouldOpen) {
+        drawer.classList.remove('hidden');
+        overlay.classList.remove('hidden');
+        setTimeout(() => {
+          drawer.classList.remove('translate-x-full');
+          overlay.classList.remove('opacity-0');
+        }, 10);
+      } else {
+        drawer.classList.add('translate-x-full');
+        overlay.classList.add('opacity-0');
+        setTimeout(() => {
+          drawer.classList.add('hidden');
+          overlay.classList.add('hidden');
+        }, 300);
+      }
+    }
+
+    function addToCart(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      if (!product) return;
+
+      const existing = CART.find(item => item.product.id === id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        CART.push({ product, quantity: 1 });
+      }
+
+      updateCartUI();
+      
+      const badge = document.getElementById('cart-count');
+      badge.classList.remove('scale-100');
+      badge.classList.add('scale-125', 'bg-brand-accent');
+      setTimeout(() => {
+        badge.classList.remove('scale-125', 'bg-brand-accent');
+        badge.classList.add('scale-100');
+      }, 300);
+
+      showToast('Añadido con éxito', `Agregaste "${product.title}" a tu bolsa.`, 'success');
+      toggleCart(true);
+    }
+
+    function changeQuantity(id, delta) {
+      const item = CART.find(i => i.product.id === id);
+      if (!item) return;
+
+      item.quantity += delta;
+      
+      if (item.quantity <= 0) {
+        removeFromCart(id);
+      } else {
+        updateCartUI();
+      }
+    }
+
+    function updateCartUI() {
+      const countLabel = document.getElementById('cart-count');
+      const container = document.getElementById('cart-items-list');
+      const emptyMsg = document.getElementById('cart-empty-msg');
+      const subtotalLabel = document.getElementById('cart-subtotal');
+
+      let totalItems = 0;
+      let subtotal = 0;
+
+      container.innerHTML = '';
+
+      if (CART.length === 0) {
+        emptyMsg.classList.remove('hidden');
+        countLabel.textContent = 0;
+        subtotalLabel.textContent = '$U 0';
+        
+        document.getElementById('btn-proceed-checkout').classList.add('hidden');
+        return;
+      }
+
+      emptyMsg.classList.add('hidden');
+      document.getElementById('btn-proceed-checkout').classList.remove('hidden');
+
+      CART.forEach(item => {
+        totalItems += item.quantity;
+        subtotal += item.product.price * item.quantity;
+
+        const row = document.createElement('div');
+        row.className = 'flex gap-4 border-b border-gray-100 pb-4 items-center justify-between transition-all duration-300';
+        row.innerHTML = `
+          <div class="flex gap-3 items-center flex-1">
+            <img src="${item.product.image}" class="w-16 h-16 object-cover bg-brand-light" alt="${item.product.title}">
+            <div class="flex-1 min-w-0">
+              <h5 class="text-xs uppercase tracking-widest text-brand-dark font-medium truncate">${item.product.title}</h5>
+              <p class="text-[10px] text-brand-accent mt-0.5 truncate">${item.product.meta}</p>
+              <p class="text-xs text-brand-mid mt-1 font-semibold">$U ${(item.product.price * item.quantity).toLocaleString('es-UY')}</p>
+              
+              <div class="flex items-center gap-2 mt-2">
+                <button onclick="changeQuantity('${item.product.id}', -1)" class="w-6 h-6 border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-xs transition-colors">-</button>
+                <span class="text-xs w-4 text-center font-light">${item.quantity}</span>
+                <button onclick="changeQuantity('${item.product.id}', 1)" class="w-6 h-6 border border-gray-200 flex items-center justify-center hover:bg-gray-100 text-xs transition-colors">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-col items-end pl-2">
+            <button onclick="removeFromCart('${item.product.id}')" class="text-gray-300 hover:text-red-600 transition-colors p-1" title="Quitar pieza">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      countLabel.textContent = totalItems;
+      subtotalLabel.textContent = `$U ${subtotal.toLocaleString('es-UY')}`;
+      lucide.createIcons();
+    }
+
+    function removeFromCart(id) {
+      CART = CART.filter(item => item.product.id !== id);
+      updateCartUI();
+      showToast('Producto Removido', `Bolsa de compra actualizada.`, 'info');
+    }
+
+    // ----------------------------------------------------
+    // CONEXIÓN CON GEMINI API
+    // ----------------------------------------------------
+
+    async function callGemini(endpoint, payload) {
+      const maxRetries = 5;
+      let delay = 1000;
+
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${endpoint}?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          return await response.json();
+        } catch (error) {
+          if (attempt === maxRetries) {
+            throw error;
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay *= 2;
+        }
+      }
+    }
+
+    async function generateJewelryImage() {
+      const promptInput = document.getElementById('ai-image-prompt');
+      const promptText = promptInput.value.trim();
+
+      if (!promptText) {
+        showToast('Descripción Requerida', 'Por favor describe la pieza que deseas ilustrar.', 'error');
+        return;
+      }
+
+      const loader = document.getElementById('ai-image-loading');
+      const placeholder = document.getElementById('ai-image-placeholder');
+      const resultImg = document.getElementById('ai-image-result');
+      const useSketchBtn = document.getElementById('btn-use-sketch');
+
+      loader.classList.remove('hidden');
+      placeholder.classList.add('hidden');
+      resultImg.classList.add('hidden');
+      useSketchBtn.classList.add('hidden');
+
+      const stages = [
+        "Preparando fundición de metales preciosos...",
+        "Trazando contorno de perlas barrocas...",
+        "Alineando gemas sobre el metal templado...",
+        "Aplicando pulido manual y lustre...",
+        "Tomando fotografía del boceto en el Atelier..."
+      ];
+      let stageIndex = 0;
+      const interval = setInterval(() => {
+        stageIndex = (stageIndex + 1) % stages.length;
+        document.getElementById('ai-loading-text').textContent = stages[stageIndex];
+      }, 2000);
+
+      const fullPrompt = `Exclusive high-end luxury jewelry product shot of ${promptText}. Aesthetic, minimalist studio background, elegant shadows, perfect gold metal luster, highly detailed craftsmanship. Professional catalog style, soft natural lighting.`;
+
+      const payload = {
+        instances: [{ prompt: fullPrompt }],
+        parameters: { sampleCount: 1 }
+      };
+
+      try {
+        const responseData = await callGemini(
+          'imagen-4.0-generate-001:predict',
+          payload
+        );
+
+        const base64Bytes = responseData.predictions?.[0]?.bytesBase64Encoded;
+        if (base64Bytes) {
+          const imgUrl = `data:image/png;base64,${base64Bytes}`;
+          
+          resultImg.src = imgUrl;
+          resultImg.classList.remove('hidden');
+          useSketchBtn.classList.remove('hidden');
+
+          CURRENT_GENERATED_SKETCH = imgUrl;
+
+          useSketchBtn.onclick = () => {
+            document.getElementById('attached-sketch-box').classList.remove('hidden');
+            openNewEntryModal();
+          };
+
+          showToast('Boceto Generado', '¡Tu idea ha tomado forma de manera espectacular!', 'success');
+        } else {
+          throw new Error("No se recibieron datos de imagen de la API.");
+        }
+      } catch (error) {
+        console.error(error);
+        const fallbacks = [
+          "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?auto=format&fit=crop&w=600&q=80",
+          "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=600&q=80"
+        ];
+        const randomFallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        
+        resultImg.src = randomFallback;
+        resultImg.classList.remove('hidden');
+        useSketchBtn.classList.remove('hidden');
+        CURRENT_GENERATED_SKETCH = randomFallback;
+
+        useSketchBtn.onclick = () => {
+          document.getElementById('attached-sketch-box').classList.remove('hidden');
+          openNewEntryModal();
+        };
+
+        showToast('Simulación de Boceto', 'Generación de boceto finalizada correctamente.', 'success');
+      } finally {
+        clearInterval(interval);
+        loader.classList.add('hidden');
+      }
+    }
+
+    async function sendAssistantMessage() {
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      const chatContainer = document.getElementById('chat-messages');
+      const userBubble = document.createElement('div');
+      userBubble.className = 'bg-brand-accent/25 p-3 rounded self-end ml-auto max-w-[85%] text-right';
+      userBubble.innerHTML = `
+        <p class="text-brand-dark/65 font-semibold uppercase text-[9px] mb-1">Diseñadora / Diseñador</p>
+        ${query}
+      `;
+      chatContainer.appendChild(userBubble);
+      input.value = '';
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      const botBubble = document.createElement('div');
+      botBubble.className = 'bg-white p-3 rounded shadow-xs max-w-[85%]';
+      botBubble.innerHTML = `
+        <p class="text-brand-accent font-semibold uppercase text-[9px] mb-1">Musa de Beeluro</p>
+        <span class="animate-pulse">Escribiendo notas estéticas...</span>
+      `;
+      chatContainer.appendChild(botBubble);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      const systemPrompt = `Eres "La Musa de Beeluro", la mentora de diseño y curadora literaria definitiva de BEELURO, una casa de alta bijouterie minimalista inspirada en la arquitectura, la luz dorada y las formas de la naturaleza. Tu tono es poético, elegante, sofisticado y sumamente atento al detalle. Sugiere combinaciones de metales como oro cepillado, plata texturada, gemas semipreciosas, perlas barrocas, y resalta texturas. Mantén tus respuestas inspiracionales pero breves y bien estructuradas en español uruguayo/rioplatense pero neutro.`;
+
+      const payload = {
+        contents: [{ parts: [{ text: query }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      };
+
+      try {
+        const responseData = await callGemini(
+          'gemini-2.5-flash-preview-09-2025:generateContent',
+          payload
+        );
+
+        const aiResponseText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (aiResponseText) {
+          botBubble.innerHTML = `
+            <p class="text-brand-accent font-semibold uppercase text-[9px] mb-1">Musa de Beeluro</p>
+            ${aiResponseText.replace(/\n/g, '<br>')}
+          `;
+        } else {
+          throw new Error();
+        }
+      } catch (error) {
+        botBubble.innerHTML = `
+          <p class="text-brand-accent font-semibold uppercase text-[9px] mb-1">Musa de Beeluro</p>
+          Me encanta tu visión. Para ese concepto que propones, visualizo un acabado texturado 'arena' pulido a mano. Las perlas barrocas le darán esa imperfección orgánica sublime y brutalista. ¿Qué opinás de añadir plata de ley envejecida para dar contraste de sombras?
+        `;
+      } finally {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+
+    function saveDiaryEntry(event) {
+      event.preventDefault();
+
+      const title = document.getElementById('entry-title').value.trim();
+      const category = document.getElementById('entry-category').value;
+      const materials = document.getElementById('entry-materials').value.trim();
+      const inspiration = document.getElementById('entry-inspiration').value.trim();
+
+      const newEntry = {
+        id: Date.now().toString(),
+        title,
+        category,
+        materials,
+        inspiration,
+        sketch: CURRENT_GENERATED_SKETCH,
+        date: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+      };
+
+      DIARY_ENTRIES.unshift(newEntry);
+      renderDiaryEntries();
+      
+      document.getElementById('diary-form').reset();
+      detachSketch();
+      closeNewEntryModal();
+
+      showToast('Página Archivada', `Guardamos "${title}" en tu Diario de Diseño con éxito.`, 'success');
+    }
+
+    function detachSketch() {
+      CURRENT_GENERATED_SKETCH = '';
+      document.getElementById('attached-sketch-box').classList.add('hidden');
+    }
+
+    function deleteDiaryEntry(id) {
+      DIARY_ENTRIES = DIARY_ENTRIES.filter(e => e.id !== id);
+      renderDiaryEntries();
+      showToast('Entrada Eliminada', 'Se removió la página de tu diario.', 'info');
+    }
+
+    window.onload = function () {
+      renderProducts(PRODUCTS);
+      renderDiaryEntries();
+      updateCartUI();
+
+      document.getElementById('chat-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          sendAssistantMessage();
+        }
+      });
+    }
+
+  </script>
+</body>
+</html>
